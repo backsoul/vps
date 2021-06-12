@@ -1,13 +1,13 @@
 #!/bin/bash
 
 not_root() {
-    echo "ERROR: You have to be root to execute this script"
-    exit 1
+  echo "ERROR: You have to be root to execute this script"
+  exit 1
 }
 
 zram_exists() {
-    echo "ERROR: /etc/init.d/zram already exists"
-    exit 1
+  echo "ERROR: /etc/init.d/zram already exists"
+  exit 1
 }
 
 # Check if user is root
@@ -15,8 +15,6 @@ zram_exists() {
 
 # Check if zram file already exists
 [ -f /etc/init.d/zram ] && zram_exists
-
-
 
 cat >/etc/init.d/zram <<EOL
 #!/bin/bash

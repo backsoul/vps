@@ -7,7 +7,6 @@
 # your Debian/Ubuntu/CentOS box. It has been designed to be as unobtrusive and
 # universal as possible.
 
-
 # Detect Debian users running the script with "sh" instead of bash
 if readlink /proc/$$/exe | grep -qs "dash"; then
 	echo "This script needs to be run with bash, not sh"
@@ -42,21 +41,21 @@ else
 	exit 5
 fi
 
-newclient () {
+newclient() {
 	# Generates the custom client.ovpn
 	cp /etc/openvpn/client-common.txt ~/$1.ovpn
-	echo "<ca>" >> ~/$1.ovpn
-	cat /etc/openvpn/easy-rsa/pki/ca.crt >> ~/$1.ovpn
-	echo "</ca>" >> ~/$1.ovpn
-	echo "<cert>" >> ~/$1.ovpn
-	cat /etc/openvpn/easy-rsa/pki/issued/$1.crt >> ~/$1.ovpn
-	echo "</cert>" >> ~/$1.ovpn
-	echo "<key>" >> ~/$1.ovpn
-	cat /etc/openvpn/easy-rsa/pki/private/$1.key >> ~/$1.ovpn
-	echo "</key>" >> ~/$1.ovpn
-	echo "<tls-auth>" >> ~/$1.ovpn
-	cat /etc/openvpn/ta.key >> ~/$1.ovpn
-	echo "</tls-auth>" >> ~/$1.ovpn
+	echo "<ca>" >>~/$1.ovpn
+	cat /etc/openvpn/easy-rsa/pki/ca.crt >>~/$1.ovpn
+	echo "</ca>" >>~/$1.ovpn
+	echo "<cert>" >>~/$1.ovpn
+	cat /etc/openvpn/easy-rsa/pki/issued/$1.crt >>~/$1.ovpn
+	echo "</cert>" >>~/$1.ovpn
+	echo "<key>" >>~/$1.ovpn
+	cat /etc/openvpn/easy-rsa/pki/private/$1.key >>~/$1.ovpn
+	echo "</key>" >>~/$1.ovpn
+	echo "<tls-auth>" >>~/$1.ovpn
+	cat /etc/openvpn/ta.key >>~/$1.ovpn
+	echo "</tls-auth>" >>~/$1.ovpn
 }
 
 # Try to get our IP from the system and fallback to the Internet.
@@ -64,13 +63,12 @@ newclient () {
 # and to avoid getting an IPv6.
 IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 if [[ "$IP" = "" ]]; then
-		IP=$(wget -4qO- "http://whatismyip.akamai.com/")
+	IP=$(wget -4qO- "http://whatismyip.akamai.com/")
 fi
 
 if [[ -e /etc/openvpn/server.conf ]]; then
-	while :
-	do
-	clear
+	while :; do
+		clear
 		echo "Looks like OpenVPN is already installed"
 		echo ""
 		echo "What do you want to do?"
@@ -80,7 +78,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 		echo "   4) Exit"
 		read -p "Select an option [1-4]: " option
 		case $option in
-			1) 
+		1)
 			echo ""
 			echo "Tell me a name for the client certificate"
 			echo "Please, use one word only, no special characters"
@@ -93,7 +91,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			echo "Client $CLIENT added, configuration is available at" ~/"$CLIENT.ovpn"
 			exit
 			;;
-			2)
+		2)
 			# This option could be documented a bit better and maybe even be simplimplified
 			# ...but what can I say, I want some sleep too
 			NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
@@ -125,7 +123,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			echo "Certificate for client $CLIENT revoked"
 			exit
 			;;
-			3) 
+		3)
 			echo ""
 			read -p "Do you really want to remove OpenVPN? [y/n]: " -e -i n REMOVE
 			if [[ "$REMOVE" = 'y' ]]; then
@@ -175,7 +173,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			fi
 			exit
 			;;
-			4) exit;;
+		4) exit ;;
 		esac
 	done
 else
@@ -195,10 +193,10 @@ else
 	echo "   2) TCP (recommended)"
 	read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
 	case $PROTOCOL in
-		1) 
+	1)
 		PROTOCOL=udp
 		;;
-		2) 
+	2)
 		PROTOCOL=tcp
 		;;
 	esac
@@ -267,34 +265,34 @@ dh dh.pem
 tls-auth ta.key 0
 topology subnet
 server 10.8.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt" > /etc/openvpn/server.conf
-	echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server.conf
+ifconfig-pool-persist ipp.txt" >/etc/openvpn/server.conf
+	echo 'push "redirect-gateway def1 bypass-dhcp"' >>/etc/openvpn/server.conf
 	# DNS
 	case $DNS in
-		1) 
+	1)
 		# Obtain the resolvers from resolv.conf and use them for OpenVPN
 		grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read line; do
-			echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server.conf
+			echo "push \"dhcp-option DNS $line\"" >>/etc/openvpn/server.conf
 		done
 		;;
-		2) 
-		echo 'push "dhcp-option DNS 8.8.8.8"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 8.8.4.4"' >> /etc/openvpn/server.conf
+	2)
+		echo 'push "dhcp-option DNS 8.8.8.8"' >>/etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 8.8.4.4"' >>/etc/openvpn/server.conf
 		;;
-		3)
-		echo 'push "dhcp-option DNS 208.67.222.222"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 208.67.220.220"' >> /etc/openvpn/server.conf
+	3)
+		echo 'push "dhcp-option DNS 208.67.222.222"' >>/etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 208.67.220.220"' >>/etc/openvpn/server.conf
 		;;
-		4) 
-		echo 'push "dhcp-option DNS 129.250.35.250"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 129.250.35.251"' >> /etc/openvpn/server.conf
+	4)
+		echo 'push "dhcp-option DNS 129.250.35.250"' >>/etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 129.250.35.251"' >>/etc/openvpn/server.conf
 		;;
-		5) 
-		echo 'push "dhcp-option DNS 74.82.42.42"' >> /etc/openvpn/server.conf
+	5)
+		echo 'push "dhcp-option DNS 74.82.42.42"' >>/etc/openvpn/server.conf
 		;;
-		6) 
-		echo 'push "dhcp-option DNS 64.6.64.6"' >> /etc/openvpn/server.conf
-		echo 'push "dhcp-option DNS 64.6.65.6"' >> /etc/openvpn/server.conf
+	6)
+		echo 'push "dhcp-option DNS 64.6.64.6"' >>/etc/openvpn/server.conf
+		echo 'push "dhcp-option DNS 64.6.65.6"' >>/etc/openvpn/server.conf
 		;;
 	esac
 	echo "keepalive 10 120
@@ -306,14 +304,14 @@ persist-key
 persist-tun
 status openvpn-status.log
 verb 3
-crl-verify crl.pem" >> /etc/openvpn/server.conf
+crl-verify crl.pem" >>/etc/openvpn/server.conf
 	# Enable net.ipv4.ip_forward for the system
 	sed -i '/\<net.ipv4.ip_forward\>/c\net.ipv4.ip_forward=1' /etc/sysctl.conf
 	if ! grep -q "\<net.ipv4.ip_forward\>" /etc/sysctl.conf; then
-		echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+		echo 'net.ipv4.ip_forward=1' >>/etc/sysctl.conf
 	fi
 	# Avoid an unneeded reboot
-	echo 1 > /proc/sys/net/ipv4/ip_forward
+	echo 1 >/proc/sys/net/ipv4/ip_forward
 	if pgrep firewalld; then
 		# Using both permanent and not permanent rules to avoid a firewalld
 		# reload.
@@ -330,7 +328,7 @@ crl-verify crl.pem" >> /etc/openvpn/server.conf
 		# Needed to use rc.local with some systemd distros
 		if [[ "$OS" = 'debian' && ! -e $RCLOCAL ]]; then
 			echo '#!/bin/sh -e
-exit 0' > $RCLOCAL
+exit 0' >$RCLOCAL
 		fi
 		chmod +x $RCLOCAL
 		# Set NAT for the VPN subnet
@@ -408,7 +406,7 @@ cipher AES-256-CBC
 comp-lzo
 setenv opt block-outside-dns
 key-direction 1
-verb 3" > /etc/openvpn/client-common.txt
+verb 3" >/etc/openvpn/client-common.txt
 	# Generates the custom client.ovpn
 	newclient "$CLIENT"
 	echo ""
